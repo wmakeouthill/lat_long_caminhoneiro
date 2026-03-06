@@ -7,6 +7,7 @@
     "scheme": "latlong",
     "userInterfaceStyle": "dark",
     "android": {
+      "googleServicesFile": "./google-services.json",
       "package": "com.latlong.caminhoneiro",
       "adaptiveIcon": {
         "backgroundColor": "#1a1a2e"
@@ -23,8 +24,7 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.775387193989-saukr5aotr2doa1b2je6ujl2cqap6rua",
-          "googleServicesFile": "./google-services.json"
+          "iosUrlScheme": "com.googleusercontent.apps.775387193989-saukr5aotr2doa1b2je6ujl2cqap6rua"
         }
       ],
       [
