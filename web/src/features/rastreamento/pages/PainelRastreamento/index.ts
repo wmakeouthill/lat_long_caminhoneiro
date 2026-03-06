@@ -1,0 +1,1 @@
+export { PainelRastreamento } from './PainelRastreamento';

@@ -1,0 +1,1 @@
+export { MapaCaminhoneiros } from './MapaCaminhoneiros';

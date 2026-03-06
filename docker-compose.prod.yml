@@ -1,0 +1,39 @@
+# ── Produção (Oracle VPS 1 GB) ────────────────────────────────────────────────
+# Uso no servidor: docker compose -f docker-compose.prod.yml up -d
+# Nginx fica fora do Docker (serviço do sistema) — economiza ~30 MB RAM
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"   # apenas localhost — nginx faz o proxy
+    volumes:
+      - backend_data:/app/data  # SQLite persistido em volume nomeado
+    env_file:
+      - ./backend/.env
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M          # teto de RAM do container
+
+volumes:
+  backend_data:
+    driver: local

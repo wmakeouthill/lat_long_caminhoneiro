@@ -1,0 +1,1 @@
+export { TelaRastreamento } from './TelaRastreamento';

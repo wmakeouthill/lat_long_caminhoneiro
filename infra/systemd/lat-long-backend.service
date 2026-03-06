@@ -1,0 +1,21 @@
+[Unit]
+Description=Lat/Long Caminhoneiro — Backend FastAPI
+After=network.target
+
+[Service]
+Type=exec
+User=ubuntu
+WorkingDirectory=/opt/lat-long-caminhoneiro/backend
+Environment=PATH=/opt/lat-long-caminhoneiro/backend/.venv/bin
+ExecStart=/opt/lat-long-caminhoneiro/backend/.venv/bin/uvicorn src.app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Limites de recursos — adequado para 1 GB RAM
+MemoryMax=256M
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target

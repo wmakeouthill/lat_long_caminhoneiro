@@ -1,0 +1,26 @@
+# ── Desenvolvimento local ─────────────────────────────────────────────────────
+# Uso: docker compose up
+# O backend fica em http://localhost:8000
+# O web roda separado com: cd web && npm run dev
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: runtime         # usa só o stage final (sem reconstruir)
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/src:/app/src:ro   # hot-reload do código fonte
+      - ./backend/data:/app/data    # persiste o SQLite local
+      - ./backend/alembic:/app/alembic:ro
+    env_file:
+      - ./backend/.env
+    environment:
+      PYTHONPATH: /app/src
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    restart: unless-stopped

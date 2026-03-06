@@ -1,0 +1,25 @@
+# ambiente virtual
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+
+# env sensível
+.env
+.env.*
+
+# banco de dados local
+data/
+*.db
+*.sqlite
+
+# testes
+tests/
+
+# IDE
+.vscode/
+.idea/
+*.swp

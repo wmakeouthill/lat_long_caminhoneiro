@@ -1,0 +1,33 @@
+# ── Produção com imagem pré-buildada localmente ───────────────────────────────
+# Usado pelo deploy-local-build.sh — NÃO faz build no servidor
+# A imagem lat-long-backend:latest é carregada via docker load pelo script
+
+services:
+  backend:
+    image: lat-long-backend:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - backend_data:/app/data
+    env_file:
+      - /opt/lat-long-caminhoneiro/backend/.env
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  backend_data:
+    driver: local

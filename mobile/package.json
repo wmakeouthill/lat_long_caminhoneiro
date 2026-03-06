@@ -1,0 +1,30 @@
+{
+  "name": "lat-long-caminhoneiro-mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "build:apk": "eas build --platform android --profile preview"
+  },
+  "dependencies": {
+    "expo": "~52.0.0",
+    "expo-router": "~4.0.0",
+    "expo-location": "~18.0.0",
+    "expo-task-manager": "~12.0.0",
+    "expo-auth-session": "~6.0.0",
+    "expo-web-browser": "~14.0.0",
+    "expo-secure-store": "~14.0.0",
+    "expo-constants": "~17.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.3",
+    "@tanstack/react-query": "^5.0.0",
+    "zustand": "^5.0.0",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "~18.3.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "lat-long-caminhoneiro",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "mobile",
+    "web"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=mobile",
+    "web": "npm run dev --workspace=web",
+    "web:build": "npm run build --workspace=web"
+  },
+  "dependencies": {
+    "@expo/config-plugins": "^55.0.6"
+  }
+}

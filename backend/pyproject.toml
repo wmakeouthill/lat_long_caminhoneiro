@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "lat-long-caminhoneiro-backend"
+version = "1.0.0"
+description = "Backend de rastreamento GPS para caminhoneiros"
+authors = []
+packages = [{include = "app", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115"
+uvicorn = {extras = ["standard"], version = "^0.32"}
+sqlalchemy = {extras = ["asyncio"], version = "^2.0"}
+aiosqlite = "^0.20"
+pydantic = {extras = ["email"], version = "^2.9"}
+pydantic-settings = "^2.6"
+alembic = "^1.14"
+python-jose = {extras = ["cryptography"], version = "^3.3"}
+httpx = "^0.28"
+python-multipart = "^0.0.12"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-asyncio = "^0.24"
+httpx = "^0.28"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

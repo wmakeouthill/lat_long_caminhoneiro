@@ -1,0 +1,65 @@
+export const estilos = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    height: '100vh',
+    backgroundColor: '#1a1a2e',
+    color: '#ffffff',
+  },
+  cabecalho: {
+    padding: '12px 20px',
+    backgroundColor: '#16213e',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottom: '1px solid #0f3460',
+    flexShrink: 0,
+  },
+  titulo: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: '#ffffff',
+  },
+  contadorAtivos: {
+    fontSize: 14,
+    color: '#4ecca3',
+  },
+  corpo: {
+    display: 'flex',
+    flex: 1,
+    overflow: 'hidden',
+  },
+  painelLateral: {
+    width: 260,
+    backgroundColor: '#16213e',
+    borderRight: '1px solid #0f3460',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    overflow: 'hidden',
+  },
+  tituloPainel: {
+    padding: '12px 16px',
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#8888aa',
+    textTransform: 'uppercase' as const,
+    letterSpacing: 1,
+    borderBottom: '1px solid #0f3460',
+    flexShrink: 0,
+  },
+  listaCaminhoneiros: {
+    flex: 1,
+    overflowY: 'auto' as const,
+    padding: '8px',
+  },
+  containerMapa: {
+    flex: 1,
+    padding: '12px',
+  },
+  semCaminhoneiros: {
+    padding: 16,
+    color: '#555577',
+    fontSize: 14,
+    textAlign: 'center' as const,
+  },
+} as const;

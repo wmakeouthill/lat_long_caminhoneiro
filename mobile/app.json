@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Rastreamento",
+    "slug": "lat-long-caminhoneiro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "latlong",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.latlong.caminhoneiro",
+      "adaptiveIcon": {
+        "backgroundColor": "#1a1a2e"
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Rastreamento precisa de acesso à localização em segundo plano para enviar sua posição.",
+          "locationAlwaysPermission": "Rastreamento precisa de acesso à localização em segundo plano.",
+          "locationWhenInUsePermission": "Rastreamento precisa da sua localização."
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "http://SEU_IP_VPS:8000",
+      "googleWebClientId": "SEU_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com",
+      "eas": {
+        "projectId": "8b5384a2-7997-4750-b9e3-8c959750d0f1"
+      }
+    },
+    "owner": "wmakeouthill"
+  }
+}

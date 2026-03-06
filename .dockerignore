@@ -1,0 +1,33 @@
+# dependências
+**/node_modules/
+**/.venv/
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+
+# builds
+**/dist/
+**/.expo/
+**/android/
+**/ios/
+
+# env
+**/.env
+**/.env.*
+
+# banco local
+**/data/
+**/*.db
+**/*.sqlite
+
+# git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# docs
+*.md
