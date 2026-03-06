@@ -91,9 +91,9 @@ Write-Info "Isso pode levar 5-15 minutos na primeira vez..."
 Set-Location $MOBILE_DIR
 New-Item -ItemType Directory -Force -Path $DIST_DIR | Out-Null
 
-# Roda o build e captura o JSON de saida (stderr visivel para diagnostico)
+# Roda interativamente (mostra prompts, progresso e URL final na tela)
 $ErrorActionPreference = "Continue"
-$buildJson = eas build --platform android --profile preview --non-interactive --json
+eas build --platform android --profile preview
 $buildExit = $LASTEXITCODE
 $ErrorActionPreference = "Stop"
 if ($buildExit -ne 0) {
@@ -102,13 +102,18 @@ if ($buildExit -ne 0) {
 }
 
 # =============================================================================
-# PASSO 3 — Baixar APK para dist/
+# PASSO 4 — Baixar APK para dist/ usando o build mais recente
 # =============================================================================
 Write-Step "4/4" "Baixando APK para dist/"
 
+Write-Info "Buscando URL do ultimo build..."
+$ErrorActionPreference = "Continue"
+$listJson = eas build:list --platform android --limit 1 --status finished --json 2>$null
+$ErrorActionPreference = "Stop"
+
 $apkUrl = $null
 try {
-    $parsed = $buildJson | ConvertFrom-Json
+    $parsed = $listJson | ConvertFrom-Json
     $apkUrl = $parsed[0].artifacts.buildUrl
 }
 catch {}
@@ -121,7 +126,6 @@ if ($apkUrl) {
     Write-Ok "APK salvo em: $apkFile"
 }
 else {
-    # eas build sem --json ou projeto nao inicializado ainda
     Write-Host ""
     Write-Host "  Nao foi possivel extrair a URL automaticamente." -ForegroundColor Yellow
     Write-Host "  Baixe o APK em: https://expo.dev e salve em: $DIST_DIR" -ForegroundColor Yellow
