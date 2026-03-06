@@ -1,35 +1,33 @@
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { useEffect, useState } from 'react';
 import { GOOGLE_WEB_CLIENT_ID } from '@/shared/constants/app.constants';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { autenticarComGoogle } from '../../services/auth.service';
 
-WebBrowser.maybeCompleteAuthSession();
+GoogleSignin.configure({
+  webClientId: GOOGLE_WEB_CLIENT_ID,
+  offlineAccess: false,
+});
 
 export function useTelaLogin(onLoginSucesso: () => void) {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const salvarAutenticacao = useAuthStore((s) => s.salvarAutenticacao);
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const idToken = response.authentication?.idToken;
-      if (idToken) {
-        processarLoginGoogle(idToken);
-      }
-    }
-  }, [response]);
-
-  async function processarLoginGoogle(idToken: string): Promise<void> {
+  async function iniciarLoginGoogle(): Promise<void> {
     setCarregando(true);
     setErro(null);
 
     try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken;
+
+      if (!idToken) {
+        setErro('Não foi possível obter o token do Google.');
+        return;
+      }
+
       const dados = await autenticarComGoogle(idToken);
       await salvarAutenticacao(dados.access_token, {
         id: dados.caminhoneiro.id,
@@ -38,8 +36,16 @@ export function useTelaLogin(onLoginSucesso: () => void) {
         fotoUrl: dados.caminhoneiro.foto_url,
       });
       onLoginSucesso();
-    } catch {
-      setErro('Falha no login. Verifique sua conexão e tente novamente.');
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // usuário cancelou, não mostrar erro
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // login já em andamento
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        setErro('Google Play Services não disponível.');
+      } else {
+        setErro('Falha no login. Verifique sua conexão e tente novamente.');
+      }
     } finally {
       setCarregando(false);
     }
@@ -48,7 +54,9 @@ export function useTelaLogin(onLoginSucesso: () => void) {
   return {
     carregando,
     erro,
-    loginDesabilitado: !request,
-    iniciarLoginGoogle: () => promptAsync(),
+    loginDesabilitado: false,
+    iniciarLoginGoogle,
   };
 }
+
+
