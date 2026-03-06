@@ -11,7 +11,7 @@
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$DIST_DIR   = "$PSScriptRoot\dist"
+$DIST_DIR = "$PSScriptRoot\dist"
 $MOBILE_DIR = "$PSScriptRoot\mobile"
 
 function Write-Step($n, $msg) {
@@ -21,7 +21,7 @@ function Write-Step($n, $msg) {
     Write-Host "=============================================" -ForegroundColor DarkCyan
 }
 
-function Write-Ok($msg)   { Write-Host "  [OK] $msg" -ForegroundColor Green }
+function Write-Ok($msg) { Write-Host "  [OK] $msg" -ForegroundColor Green }
 function Write-Info($msg) { Write-Host "  --> $msg" -ForegroundColor DarkGray }
 function Die($label) {
     if ($LASTEXITCODE -ne 0) {
@@ -47,7 +47,8 @@ if (-not $easPath) {
     npm install -g eas-cli
     Die "npm install -g eas-cli"
     Write-Ok "eas-cli instalado"
-} else {
+}
+else {
     Write-Ok "eas-cli encontrado: $($easPath.Source)"
 }
 
@@ -64,7 +65,8 @@ if ($LASTEXITCODE -ne 0 -or $whoami -match "Not logged in") {
     eas login
     Die "eas login"
     Write-Ok "Login realizado com sucesso"
-} else {
+}
+else {
     Write-Ok "Logado como: $whoami"
 }
 
@@ -89,11 +91,13 @@ Write-Info "Isso pode levar 5-15 minutos na primeira vez..."
 Set-Location $MOBILE_DIR
 New-Item -ItemType Directory -Force -Path $DIST_DIR | Out-Null
 
-# Roda o build e captura o JSON de saida
-$buildJson = eas build --platform android --profile preview --non-interactive --json 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "  [ERRO] eas build falhou (exit $LASTEXITCODE)" -ForegroundColor Red
-    Write-Host $buildJson
+# Roda o build e captura o JSON de saida (stderr visivel para diagnostico)
+$ErrorActionPreference = "Continue"
+$buildJson = eas build --platform android --profile preview --non-interactive --json
+$buildExit = $LASTEXITCODE
+$ErrorActionPreference = "Stop"
+if ($buildExit -ne 0) {
+    Write-Host "  [ERRO] eas build falhou (exit $buildExit)" -ForegroundColor Red
     exit 1
 }
 
@@ -106,15 +110,17 @@ $apkUrl = $null
 try {
     $parsed = $buildJson | ConvertFrom-Json
     $apkUrl = $parsed[0].artifacts.buildUrl
-} catch {}
+}
+catch {}
 
 if ($apkUrl) {
     $timestamp = Get-Date -Format "yyyyMMdd_HHmm"
-    $apkFile   = "$DIST_DIR\lat-long-caminhoneiro_${timestamp}.apk"
+    $apkFile = "$DIST_DIR\lat-long-caminhoneiro_${timestamp}.apk"
     Write-Info "Baixando: $apkUrl"
     Invoke-WebRequest -Uri $apkUrl -OutFile $apkFile
     Write-Ok "APK salvo em: $apkFile"
-} else {
+}
+else {
     # eas build sem --json ou projeto nao inicializado ainda
     Write-Host ""
     Write-Host "  Nao foi possivel extrair a URL automaticamente." -ForegroundColor Yellow

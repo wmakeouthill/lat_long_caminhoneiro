@@ -113,7 +113,7 @@ Write-Ok "Arquivos enviados"
 # =============================================================================
 # PASSO 4 — Deploy remoto: para, limpa, sobe, mostra status
 # =============================================================================
-Write-Step "4/4" "Deploy na VPS: para container, limpa imagens, sobe novo"
+Write-Step "4/5" "Deploy na VPS: para container, limpa imagens, sobe novo"
 $t = Get-Date
 
 $remote = @"
@@ -151,12 +151,52 @@ $remote -replace "`r`n", "`n" | & ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o
 Die "deploy remoto"
 
 # =============================================================================
+# PASSO 5 — Build e deploy do web (dashboard)
+# =============================================================================
+Write-Step "5/5" "Build e deploy do dashboard web"
+$t = Get-Date
+
+Write-Info "Buildando web com URL da VPS..."
+Push-Location ".\web"
+$vpsIp = $SSH_HOST.Split('@')[1]
+$env:VITE_API_URL = "http://$vpsIp"
+npm install --legacy-peer-deps --silent
+npx vite build --logLevel warn
+Die "vite build"
+Pop-Location
+
+Write-Ok "Build concluido $(Elapsed $t)"
+$t = Get-Date
+
+Write-Info "Criando diretorio remoto para o web..."
+& ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=20 $SSH_HOST "sudo mkdir -p /var/www/lat-long-web && sudo chown ubuntu:ubuntu /var/www/lat-long-web"
+Die "criacao diretorio web remoto"
+
+Write-Info "Enviando arquivos estaticos..."
+& scp -i $SSH_KEY -o StrictHostKeyChecking=no -r ".\web\dist\*" "${SSH_HOST}:/var/www/lat-long-web/"
+Die "scp web dist"
+
+Write-Ok "Web deployado $(Elapsed $t)"
+
+# Atualiza config do Nginx para servir o web
+$nginxConf = Get-Content ".\infra\nginx\lat-long.conf" -Raw
+if ($nginxConf -notmatch "root /var/www") {
+    Write-Info "Atualizando config do Nginx para servir o web..."
+    & scp -i $SSH_KEY -o StrictHostKeyChecking=no `
+        ".\infra\nginx\lat-long.conf" `
+        "${SSH_HOST}:/tmp/lat-long.conf"
+    & ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_HOST "sudo cp /tmp/lat-long.conf /etc/nginx/sites-available/lat-long && sudo nginx -t && sudo systemctl reload nginx"
+    Die "reload nginx"
+}
+
+# =============================================================================
 # Resumo final
 # =============================================================================
 $total = [math]::Round(((Get-Date) - $totalStart).TotalSeconds, 0)
 Write-Host ""
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "  DEPLOY FINALIZADO em ${total}s" -ForegroundColor Green
-Write-Host "  Backend: http://SEU_IP_VPS:8000/health" -ForegroundColor Green
+Write-Host "  Backend: http://SEU_IP_VPS/health" -ForegroundColor Green
+Write-Host "  Dashboard: http://SEU_IP_VPS/" -ForegroundColor Green
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host ""
