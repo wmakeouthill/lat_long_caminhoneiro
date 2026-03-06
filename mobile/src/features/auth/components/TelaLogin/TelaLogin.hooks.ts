@@ -28,14 +28,20 @@ export function useTelaLogin(onLoginSucesso: () => void) {
         return;
       }
 
-      const dados = await autenticarComGoogle(idToken);
-      await salvarAutenticacao(dados.access_token, {
-        id: dados.caminhoneiro.id,
-        nome: dados.caminhoneiro.nome,
-        email: dados.caminhoneiro.email,
-        fotoUrl: dados.caminhoneiro.foto_url,
-      });
-      onLoginSucesso();
+      console.log('[Login] idToken obtido, chamando backend...');
+      try {
+        const dados = await autenticarComGoogle(idToken);
+        await salvarAutenticacao(dados.access_token, {
+          id: dados.caminhoneiro.id,
+          nome: dados.caminhoneiro.nome,
+          email: dados.caminhoneiro.email,
+          fotoUrl: dados.caminhoneiro.foto_url,
+        });
+        onLoginSucesso();
+      } catch (backendError: any) {
+        console.error('[Login] Erro no backend:', backendError?.response?.status, backendError?.response?.data, backendError?.message);
+        setErro('Falha no login. Verifique sua conexão e tente novamente.');
+      }
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // usuário cancelou, não mostrar erro
@@ -44,6 +50,7 @@ export function useTelaLogin(onLoginSucesso: () => void) {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         setErro('Google Play Services não disponível.');
       } else {
+        console.error('[Login] Erro:', error?.code, error?.message, JSON.stringify(error));
         setErro('Falha no login. Verifique sua conexão e tente novamente.');
       }
     } finally {

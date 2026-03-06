@@ -36,7 +36,7 @@
       ]
     ],
     "extra": {
-      "apiUrl": "http://SEU_IP_VPS:8000",
+      "apiUrl": "http://SEU_IP_VPS",
       "googleWebClientId": "775387193989-saukr5aotr2doa1b2je6ujl2cqap6rua.apps.googleusercontent.com",
       "eas": {
         "projectId": "8b5384a2-7997-4750-b9e3-8c959750d0f1"
