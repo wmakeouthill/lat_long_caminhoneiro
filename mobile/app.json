@@ -6,9 +6,11 @@
     "orientation": "portrait",
     "scheme": "latlong",
     "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
     "android": {
       "googleServicesFile": "./google-services.json",
       "package": "com.latlong.caminhoneiro",
+      "newArchEnabled": true,
       "adaptiveIcon": {
         "backgroundColor": "#1a1a2e"
       },
