@@ -11,7 +11,6 @@
       "googleServicesFile": "./google-services.json",
       "package": "com.latlong.caminhoneiro",
       "newArchEnabled": true,
-      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#1a1a2e"
       },
@@ -24,6 +23,14 @@
       ]
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
       [
         "@react-native-google-signin/google-signin",
         {
