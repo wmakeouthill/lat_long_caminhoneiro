@@ -4,8 +4,10 @@ import { GOOGLE_WEB_CLIENT_ID } from '@/shared/constants/app.constants';
 import { useAuthStore } from '@/shared/store/auth.store';
 import { autenticarComGoogle } from '../../services/auth.service';
 
+const WEB_CLIENT_ID = '775387193989-saukr5aotr2doa1b2je6ujl2cqap6rua.apps.googleusercontent.com';
+console.log('[Login] GoogleSignin.configure webClientId:', GOOGLE_WEB_CLIENT_ID || '(VAZIO!)', '| hardcoded:', WEB_CLIENT_ID);
 GoogleSignin.configure({
-  webClientId: GOOGLE_WEB_CLIENT_ID,
+  webClientId: WEB_CLIENT_ID,
   offlineAccess: false,
 });
 
