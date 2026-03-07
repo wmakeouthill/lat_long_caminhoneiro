@@ -1,7 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, Polyline } from 'react-leaflet';
 import L from 'leaflet';
+import { useQueryClient } from '@tanstack/react-query';
 import { useMapaCaminhoneiros } from './MapaCaminhoneiros.hooks';
+import { atualizarNomeCaminhoneiro } from '../../services/rastreamento.service';
 import type { MapaCaminhoneirosProps } from './MapaCaminhoneiros.types';
 import type { CaminhoneiroComLocalizacao } from '../../types/rastreamento.types';
 
@@ -15,9 +17,9 @@ function corCaminhoneiro(id: string): string {
 
 const SVG_CAMINHAO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h4c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm.5 1.5 1.96 2.5H17V9.5h3.5zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>`;
 
-function criarIconeCaminhao(cor: string, ativo: boolean): L.DivIcon {
+function criarIconeCaminhao(cor: string, ativo: boolean, dimmed: boolean): L.DivIcon {
   const fundo = ativo ? cor : '#6b7280';
-  const opacidade = ativo ? '1' : '0.65';
+  const opacidade = dimmed ? '0.2' : ativo ? '1' : '0.65';
   return L.divIcon({
     html: `<div style="width:36px;height:36px;background:${fundo};border-radius:50%;border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;opacity:${opacidade};">${SVG_CAMINHAO}</div>`,
     className: '',
@@ -36,11 +38,13 @@ function criarIconeDestino(cor: string): L.DivIcon {
   });
 }
 
+type ModoMenu = null | 'destino' | 'nome';
+
 interface MenuContexto {
   x: number;
   y: number;
   caminhoneiro: CaminhoneiroComLocalizacao;
-  mostrarInput: boolean;
+  modo: ModoMenu;
 }
 
 const estilosMenu: Record<string, React.CSSProperties> = {
@@ -62,7 +66,7 @@ const estilosMenu: Record<string, React.CSSProperties> = {
     gap: 8,
   },
   headerNome: { fontWeight: 600, fontSize: 13, color: '#ffffff' },
-  secaoDestino: { padding: '10px 12px' },
+  secao: { padding: '10px 12px' },
   label: { fontSize: 11, color: '#8888aa', marginBottom: 6 },
   input: {
     width: '100%',
@@ -102,7 +106,8 @@ const estilosMenu: Record<string, React.CSSProperties> = {
   },
 };
 
-export function MapaCaminhoneiros({ caminhoneiros, onSelecionar }: MapaCaminhoneirosProps) {
+export function MapaCaminhoneiros({ caminhoneiros, caminhoneiroSelecionadoId, onSelecionar }: MapaCaminhoneirosProps) {
+  const queryClient = useQueryClient();
   const {
     caminhoneirosComPosicao,
     centroInicial,
@@ -114,47 +119,63 @@ export function MapaCaminhoneiros({ caminhoneiros, onSelecionar }: MapaCaminhone
   } = useMapaCaminhoneiros(caminhoneiros);
 
   const [menu, setMenu] = useState<MenuContexto | null>(null);
-  const [inputDestino, setInputDestino] = useState('');
-  const [erroDestino, setErroDestino] = useState('');
+  const [inputValor, setInputValor] = useState('');
+  const [erro, setErro] = useState('');
+  const [salvando, setSalvando] = useState(false);
+
+  const fecharMenu = useCallback(() => {
+    setMenu(null);
+    setInputValor('');
+    setErro('');
+  }, []);
 
   useEffect(() => {
     if (!menu) return;
     function fecharFora(e: MouseEvent) {
       const el = document.getElementById('mapa-menu-contexto');
-      if (el && !el.contains(e.target as Node)) {
-        setMenu(null);
-        setInputDestino('');
-        setErroDestino('');
-      }
+      if (el && !el.contains(e.target as Node)) fecharMenu();
     }
     document.addEventListener('mousedown', fecharFora);
     return () => document.removeEventListener('mousedown', fecharFora);
-  }, [menu]);
+  }, [menu, fecharMenu]);
 
   const abrirMenu = useCallback((e: L.LeafletMouseEvent, caminhoneiro: CaminhoneiroComLocalizacao) => {
     e.originalEvent.preventDefault();
-    setMenu({ x: e.originalEvent.clientX, y: e.originalEvent.clientY, caminhoneiro, mostrarInput: false });
-    setInputDestino('');
-    setErroDestino('');
+    setMenu({ x: e.originalEvent.clientX, y: e.originalEvent.clientY, caminhoneiro, modo: null });
+    setInputValor('');
+    setErro('');
   }, []);
 
   const confirmarDestino = useCallback(async () => {
-    if (!menu || !inputDestino.trim()) return;
-    const { caminhoneiro } = menu;
-    if (!caminhoneiro.ultima_latitude || !caminhoneiro.ultima_longitude) return;
+    if (!menu || !inputValor.trim() || !menu.caminhoneiro.ultima_latitude) return;
     const ok = await atribuirDestino(
-      caminhoneiro.id,
-      caminhoneiro.ultima_latitude,
-      caminhoneiro.ultima_longitude,
-      inputDestino
+      menu.caminhoneiro.id,
+      menu.caminhoneiro.ultima_latitude,
+      menu.caminhoneiro.ultima_longitude!,
+      inputValor
     );
-    if (!ok) {
-      setErroDestino('Endereço não encontrado. Tente ser mais específico.');
-    } else {
-      setMenu(null);
-      setInputDestino('');
+    if (!ok) setErro('Endereço não encontrado. Tente ser mais específico.');
+    else fecharMenu();
+  }, [menu, inputValor, atribuirDestino, fecharMenu]);
+
+  const confirmarNome = useCallback(async () => {
+    if (!menu || !inputValor.trim()) return;
+    setSalvando(true);
+    try {
+      await atualizarNomeCaminhoneiro(menu.caminhoneiro.id, inputValor);
+      queryClient.setQueryData<CaminhoneiroComLocalizacao[]>(
+        ['caminhoneiros'],
+        (ant) => ant?.map((c) => c.id === menu.caminhoneiro.id ? { ...c, nome: inputValor.trim() } : c)
+      );
+      fecharMenu();
+    } catch {
+      setErro('Erro ao salvar nome. Tente novamente.');
+    } finally {
+      setSalvando(false);
     }
-  }, [menu, inputDestino, atribuirDestino]);
+  }, [menu, inputValor, queryClient, fecharMenu]);
+
+  const temSelecao = caminhoneiroSelecionadoId !== null;
 
   return (
     <>
@@ -178,25 +199,31 @@ export function MapaCaminhoneiros({ caminhoneiros, onSelecionar }: MapaCaminhone
 
         {Object.entries(destinosPorId).map(([id, destino]) => (
           <Marker key={`dest-${id}`} position={destino.coords} icon={criarIconeDestino(corCaminhoneiro(id))}>
-            <Tooltip permanent direction="top" offset={[0, -16]}>
-              {destino.nome}
-            </Tooltip>
+            <Tooltip permanent direction="top" offset={[0, -16]}>{destino.nome}</Tooltip>
           </Marker>
         ))}
 
         {caminhoneirosComPosicao.map((caminhoneiro) => {
           const cor = corCaminhoneiro(caminhoneiro.id);
+          const selecionado = caminhoneiro.id === caminhoneiroSelecionadoId;
+          const dimmed = temSelecao && !selecionado;
           return (
             <Marker
               key={caminhoneiro.id}
               position={[caminhoneiro.ultima_latitude!, caminhoneiro.ultima_longitude!]}
-              icon={criarIconeCaminhao(cor, caminhoneiro.rastreando)}
+              icon={criarIconeCaminhao(cor, caminhoneiro.rastreando, dimmed)}
               eventHandlers={{
                 click: () => onSelecionar(caminhoneiro.id),
                 contextmenu: (e) => abrirMenu(e as unknown as L.LeafletMouseEvent, caminhoneiro),
               }}
+              zIndexOffset={selecionado ? 1000 : 0}
             >
-              <Tooltip permanent direction="top" offset={[0, -20]}>
+              <Tooltip
+                permanent
+                direction="top"
+                offset={[0, -20]}
+                opacity={dimmed ? 0.2 : 1}
+              >
                 {caminhoneiro.nome.split(' ')[0]}
               </Tooltip>
               <Popup>
@@ -222,62 +249,87 @@ export function MapaCaminhoneiros({ caminhoneiros, onSelecionar }: MapaCaminhone
             <span style={estilosMenu.headerNome}>{menu.caminhoneiro.nome}</span>
           </div>
 
-          {!menu.mostrarInput ? (
+          {menu.modo === null && (
             <>
-              <button style={estilosMenu.botaoItem} onClick={() => setMenu((m) => m && { ...m, mostrarInput: true })}>
+              <button style={estilosMenu.botaoItem} onClick={() => { setMenu((m) => m && { ...m, modo: 'nome' }); setInputValor(menu.caminhoneiro.nome); }}>
+                ✏️ Editar Nome
+              </button>
+              <button style={estilosMenu.botaoItem} onClick={() => setMenu((m) => m && { ...m, modo: 'destino' })}>
                 📍 Atribuir Destino
               </button>
-
               {destinosPorId[menu.caminhoneiro.id] && (
                 <button
                   style={{ ...estilosMenu.botaoItem, color: '#ef4444' }}
-                  onClick={() => { removerDestino(menu.caminhoneiro.id); setMenu(null); }}
+                  onClick={() => { removerDestino(menu.caminhoneiro.id); fecharMenu(); }}
                 >
                   🗑️ Remover Destino
                 </button>
               )}
-
               {menu.caminhoneiro.ultima_latitude && (
                 <a
                   href={`https://www.google.com/maps?q=${menu.caminhoneiro.ultima_latitude},${menu.caminhoneiro.ultima_longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={estilosMenu.linkMaps}
-                  onClick={() => setMenu(null)}
+                  onClick={fecharMenu}
                 >
                   🗺️ Abrir no Google Maps
                 </a>
               )}
             </>
-          ) : (
-            <div style={estilosMenu.secaoDestino}>
+          )}
+
+          {menu.modo === 'nome' && (
+            <div style={estilosMenu.secao}>
+              <div style={estilosMenu.label}>Novo nome</div>
+              <input
+                autoFocus
+                value={inputValor}
+                onChange={(e) => { setInputValor(e.target.value); setErro(''); }}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') confirmarNome();
+                  if (e.key === 'Escape') fecharMenu();
+                }}
+                placeholder="Nome do motorista"
+                style={estilosMenu.input}
+              />
+              {erro && <div style={estilosMenu.erroTexto}>{erro}</div>}
+              <button
+                onClick={confirmarNome}
+                disabled={salvando || !inputValor.trim()}
+                style={{
+                  marginTop: 8, width: '100%', padding: '7px 0', borderRadius: 4, border: 'none',
+                  backgroundColor: salvando ? '#0f3460' : corCaminhoneiro(menu.caminhoneiro.id),
+                  color: '#fff', fontSize: 12, fontWeight: 600, cursor: salvando ? 'wait' : 'pointer',
+                }}
+              >
+                {salvando ? 'Salvando...' : 'Salvar Nome'}
+              </button>
+            </div>
+          )}
+
+          {menu.modo === 'destino' && (
+            <div style={estilosMenu.secao}>
               <div style={estilosMenu.label}>Endereço de destino</div>
               <input
                 autoFocus
-                value={inputDestino}
-                onChange={(e) => { setInputDestino(e.target.value); setErroDestino(''); }}
+                value={inputValor}
+                onChange={(e) => { setInputValor(e.target.value); setErro(''); }}
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === 'Enter') confirmarDestino();
-                  if (e.key === 'Escape') setMenu(null);
+                  if (e.key === 'Escape') fecharMenu();
                 }}
                 placeholder="Ex: Terminal Intermodal, Campinas, SP"
                 style={estilosMenu.input}
               />
-              {erroDestino && <div style={estilosMenu.erroTexto}>{erroDestino}</div>}
+              {erro && <div style={estilosMenu.erroTexto}>{erro}</div>}
               <button
                 onClick={confirmarDestino}
-                disabled={geocodificando === menu.caminhoneiro.id || !inputDestino.trim()}
+                disabled={geocodificando === menu.caminhoneiro.id || !inputValor.trim()}
                 style={{
-                  marginTop: 8,
-                  width: '100%',
-                  padding: '7px 0',
-                  borderRadius: 4,
-                  border: 'none',
+                  marginTop: 8, width: '100%', padding: '7px 0', borderRadius: 4, border: 'none',
                   backgroundColor: geocodificando ? '#0f3460' : corCaminhoneiro(menu.caminhoneiro.id),
-                  color: '#ffffff',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: geocodificando ? 'wait' : 'pointer',
+                  color: '#fff', fontSize: 12, fontWeight: 600, cursor: geocodificando ? 'wait' : 'pointer',
                 }}
               >
                 {geocodificando === menu.caminhoneiro.id ? 'Buscando rota...' : 'Definir Rota'}

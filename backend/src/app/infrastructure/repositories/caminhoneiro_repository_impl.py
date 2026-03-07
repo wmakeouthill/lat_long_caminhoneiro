@@ -71,3 +71,11 @@ class CaminhoneiroRepository(ICaminhoneiroRepository):
             .values(rastreando=rastreando, atualizado_em=datetime.now(timezone.utc))
         )
         await self._sessao.commit()
+
+    async def atualizar_nome(self, caminhoneiro_id: str, nome: str) -> None:
+        await self._sessao.execute(
+            update(Caminhoneiro)
+            .where(Caminhoneiro.id == caminhoneiro_id)
+            .values(nome=nome, atualizado_em=datetime.now(timezone.utc))
+        )
+        await self._sessao.commit()

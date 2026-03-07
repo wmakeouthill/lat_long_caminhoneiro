@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from '@/shared/store/auth.store';
 
@@ -11,6 +11,7 @@ const queryClient = new QueryClient();
 function NavigationGuard() {
   const router = useRouter();
   const segments = useSegments();
+  const navigationState = useRootNavigationState();
   const { accessToken, carregarTokenSalvo } = useAuthStore();
 
   useEffect(() => {
@@ -18,6 +19,8 @@ function NavigationGuard() {
   }, []);
 
   useEffect(() => {
+    if (!navigationState?.key) return;
+
     const naTelaProtegida = segments[0] === 'rastreamento';
 
     if (!accessToken && naTelaProtegida) {
@@ -25,7 +28,7 @@ function NavigationGuard() {
     } else if (accessToken && !naTelaProtegida) {
       router.replace('/rastreamento');
     }
-  }, [accessToken, segments]);
+  }, [accessToken, segments, navigationState?.key]);
 
   return null;
 }

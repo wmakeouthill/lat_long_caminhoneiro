@@ -16,6 +16,7 @@ interface AuthState {
   carregarTokenSalvo: () => Promise<void>;
   salvarAutenticacao: (token: string, caminhoneiro: DadosCaminhoneiro) => Promise<void>;
   limparAutenticacao: () => Promise<void>;
+  atualizarNome: (nome: string) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -37,5 +38,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   limparAutenticacao: async () => {
     await SecureStore.deleteItemAsync(CHAVE_TOKEN);
     set({ accessToken: null, caminhoneiro: null });
+  },
+
+  atualizarNome: (nome: string) => {
+    set((state) => ({
+      caminhoneiro: state.caminhoneiro ? { ...state.caminhoneiro, nome } : null,
+    }));
   },
 }));

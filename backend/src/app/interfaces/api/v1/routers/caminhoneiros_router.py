@@ -5,7 +5,7 @@ from app.infrastructure.repositories.caminhoneiro_repository_impl import Caminho
 from app.infrastructure.repositories.localizacao_repository_impl import LocacalizacaoRepository
 from app.application.services.caminhoneiro_service import CaminhoneiroService
 from app.application.services.localizacao_service import LocalizacaoService
-from app.domain.schemas.caminhoneiro_schema import CaminhoneiroComLocalizacaoResponse
+from app.domain.schemas.caminhoneiro_schema import CaminhoneiroComLocalizacaoResponse, NomeUpdate
 from app.domain.schemas.localizacao_schema import LocalizacaoHistoricoResponse
 from app.domain.exceptions import CaminhoneiroNaoEncontradoError
 
@@ -38,3 +38,16 @@ async def listar_historico(
         return await service.listar_historico(caminhoneiro_id, limite)
     except CaminhoneiroNaoEncontradoError as erro:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(erro))
+
+
+@router.patch("/{caminhoneiro_id}/nome", status_code=status.HTTP_204_NO_CONTENT)
+async def atualizar_nome(
+    caminhoneiro_id: str,
+    dados: NomeUpdate,
+    sessao: AsyncSession = Depends(obter_sessao),
+) -> None:
+    repo = CaminhoneiroRepository(sessao)
+    caminhoneiro = await repo.buscar_por_id(caminhoneiro_id)
+    if caminhoneiro is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Caminhoneiro não encontrado")
+    await repo.atualizar_nome(caminhoneiro_id, dados.nome)

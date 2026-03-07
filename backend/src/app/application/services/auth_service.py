@@ -36,7 +36,7 @@ class AuthService:
             )
             caminhoneiro = await self._caminhoneiro_repository.salvar(caminhoneiro)
         else:
-            caminhoneiro.nome = info_google.nome
+            # Preserva nome customizado — só atualiza a foto de perfil
             caminhoneiro.foto_url = info_google.foto_url
             caminhoneiro = await self._caminhoneiro_repository.salvar(caminhoneiro)
 

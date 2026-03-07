@@ -28,3 +28,7 @@ class ICaminhoneiroRepository(ABC):
         self, caminhoneiro_id: str, rastreando: bool
     ) -> None:
         pass
+
+    @abstractmethod
+    async def atualizar_nome(self, caminhoneiro_id: str, nome: str) -> None:
+        pass

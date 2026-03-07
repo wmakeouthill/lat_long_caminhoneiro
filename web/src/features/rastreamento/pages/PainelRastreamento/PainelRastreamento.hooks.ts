@@ -49,6 +49,10 @@ export function usePainelRastreamento() {
 
   useRastreamentoWebSocket(processarAtualizacaoWs);
 
+  const selecionarCaminhoneiro = useCallback((id: string) => {
+    setCaminhoneiroSelecionadoId((atual) => atual === id ? null : id);
+  }, []);
+
   const totalAtivos = caminhoneiros.filter((c) => c.rastreando).length;
 
   return {
@@ -56,6 +60,6 @@ export function usePainelRastreamento() {
     isLoading,
     totalAtivos,
     caminhoneiroSelecionadoId,
-    selecionarCaminhoneiro: setCaminhoneiroSelecionadoId,
+    selecionarCaminhoneiro,
   };
 }

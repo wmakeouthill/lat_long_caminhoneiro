@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { estilos } from './TelaRastreamento.styles';
 import { useTelaRastreamento } from './TelaRastreamento.hooks';
 import type { TelaRastreamentoProps } from './TelaRastreamento.types';
@@ -12,6 +12,11 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
     caminhoneiro,
     alternarRastreamento,
     fazerLogout,
+    inputNome,
+    setInputNome,
+    erroNome,
+    salvandoNome,
+    salvarNome,
   } = useTelaRastreamento();
 
   async function handleLogout() {
@@ -23,6 +28,33 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
     <View style={estilos.container}>
       <Text style={estilos.saudacao}>Olá,</Text>
       <Text style={estilos.nome}>{caminhoneiro?.nome?.split(' ')[0] ?? 'Motorista'}</Text>
+
+      <View style={estilos.cadastroNomeContainer}>
+          <Text style={estilos.cadastroNomeTitulo}>Seu nome</Text>
+          <Text style={estilos.cadastroNomeDescricao}>Aparece no painel do gestor.</Text>
+          <TextInput
+            style={estilos.cadastroNomeInput}
+            placeholder="Seu nome"
+            placeholderTextColor="#555577"
+            value={inputNome}
+            onChangeText={(t) => { setInputNome(t); }}
+            onSubmitEditing={salvarNome}
+            returnKeyType="done"
+            autoFocus
+          />
+          {erroNome ? <Text style={estilos.cadastroNomeErro}>{erroNome}</Text> : null}
+          <TouchableOpacity
+            style={estilos.botaoSalvarNome}
+            onPress={salvarNome}
+            disabled={salvandoNome || !inputNome.trim()}
+          >
+            {salvandoNome ? (
+              <ActivityIndicator color="#1a1a2e" />
+            ) : (
+              <Text style={estilos.botaoSalvarNomeTexto}>Salvar Nome</Text>
+            )}
+          </TouchableOpacity>
+      </View>
 
       <View style={[estilos.circuloStatus, rastreando ? estilos.circuloAtivo : estilos.circuloInativo]}>
         <Text style={estilos.iconeStatus}>{rastreando ? '📡' : '📍'}</Text>
