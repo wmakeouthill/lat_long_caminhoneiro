@@ -18,7 +18,7 @@ export async function iniciarRastreamento(): Promise<void> {
   await Location.startLocationUpdatesAsync(LOCALIZACAO_TASK_NAME, {
     accuracy: Location.Accuracy.Balanced,
     timeInterval: INTERVALO_RASTREAMENTO_MS,
-    distanceInterval: 100, // mínimo 100 metros entre updates
+    distanceInterval: 0, // envia sempre no intervalo de tempo, independente de distância
     showsBackgroundLocationIndicator: true,
     foregroundService: {
       notificationTitle: 'Rastreamento Ativo',

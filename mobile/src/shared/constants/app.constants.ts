@@ -8,4 +8,4 @@ export const GOOGLE_WEB_CLIENT_ID: string =
 
 export const LOCALIZACAO_TASK_NAME = 'TAREFA_RASTREAMENTO_LOCALIZACAO';
 
-export const INTERVALO_RASTREAMENTO_MS = 60_000; // 60 segundos
+export const INTERVALO_RASTREAMENTO_MS = 30_000; // 30 segundos
