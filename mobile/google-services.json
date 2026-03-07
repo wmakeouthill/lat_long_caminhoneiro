@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "775387193989",
+    "project_id": "lat-long-caminhoneiro",
+    "storage_bucket": "lat-long-caminhoneiro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775387193989:android:b99020e6c3df94f4443fec",
+        "android_client_info": {
+          "package_name": "com.latlong.caminhoneiro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "775387193989-6qndujdd56f6uaj0sj03up59numm6did.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.latlong.caminhoneiro",
+            "certificate_hash": "b811b21e9008d1abe8532694425e036f59b65ef0"
+          }
+        },
+        {
+          "client_id": "775387193989-saukr5aotr2doa1b2je6ujl2cqap6rua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3c0UXacVTK-oH_2f2JCUBzQKp2xY5C0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "775387193989-saukr5aotr2doa1b2je6ujl2cqap6rua.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
