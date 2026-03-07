@@ -29,11 +29,15 @@ export async function iniciarRastreamento(): Promise<void> {
   });
 }
 
-export async function pararRastreamento(): Promise<void> {
+export async function pararRastreamento(token: string): Promise<void> {
   const jaAtivo = await Location.hasStartedLocationUpdatesAsync(LOCALIZACAO_TASK_NAME);
   if (jaAtivo) {
     await Location.stopLocationUpdatesAsync(LOCALIZACAO_TASK_NAME);
   }
+  await axios.delete(`${API_URL}/api/v1/localizacoes/rastreamento`, {
+    headers: { Authorization: `Bearer ${token}` },
+    timeout: 10_000,
+  });
 }
 
 export async function verificarSeRastreando(): Promise<boolean> {

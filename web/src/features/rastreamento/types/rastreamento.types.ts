@@ -13,8 +13,9 @@ export interface CaminhoneiroComLocalizacao {
 export interface AtualizacaoLocalizacaoWs {
   caminhoneiro_id: string;
   nome: string;
-  latitude: number;
-  longitude: number;
+  rastreando: boolean;
+  latitude: number | null;
+  longitude: number | null;
   velocidade: number | null;
   atualizado_em: string;
 }

@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import { useMapaCaminhoneiros } from './MapaCaminhoneiros.hooks';
 import type { MapaCaminhoneirosProps } from './MapaCaminhoneiros.types';
@@ -48,6 +48,9 @@ export function MapaCaminhoneiros({ caminhoneiros, onSelecionar }: MapaCaminhone
           icon={caminhoneiro.rastreando ? iconeAtivo : iconeInativo}
           eventHandlers={{ click: () => onSelecionar(caminhoneiro.id) }}
         >
+          <Tooltip permanent direction="top" offset={[0, -42]}>
+            {caminhoneiro.nome.split(' ')[0]}
+          </Tooltip>
           <Popup>
             <strong>{caminhoneiro.nome}</strong>
             <br />
@@ -61,7 +64,7 @@ export function MapaCaminhoneiros({ caminhoneiros, onSelecionar }: MapaCaminhone
             {caminhoneiro.ultima_atualizacao && (
               <>
                 <br />
-                {new Date(caminhoneiro.ultima_atualizacao).toLocaleTimeString('pt-BR')}
+                {new Date(caminhoneiro.ultima_atualizacao).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
               </>
             )}
           </Popup>

@@ -13,6 +13,7 @@ export function useTelaRastreamento() {
   const [carregando, setCarregando] = useState(false);
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
   const caminhoneiro = useAuthStore((s) => s.caminhoneiro);
+  const accessToken = useAuthStore((s) => s.accessToken);
   const limparAutenticacao = useAuthStore((s) => s.limparAutenticacao);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export function useTelaRastreamento() {
 
     try {
       if (rastreando) {
-        await pararRastreamento();
+        await pararRastreamento(accessToken ?? '');
         setRastreando(false);
         setUltimaAtualizacao(null);
       } else {
@@ -46,14 +47,14 @@ export function useTelaRastreamento() {
     } finally {
       setCarregando(false);
     }
-  }, [rastreando]);
+  }, [rastreando, accessToken]);
 
   const fazerLogout = useCallback(async () => {
     if (rastreando) {
-      await pararRastreamento();
+      await pararRastreamento(accessToken ?? '');
     }
     await limparAutenticacao();
-  }, [rastreando, limparAutenticacao]);
+  }, [rastreando, accessToken, limparAutenticacao]);
 
   return {
     rastreando,

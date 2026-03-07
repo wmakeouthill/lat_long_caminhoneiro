@@ -25,18 +25,22 @@ export function usePainelRastreamento() {
         CHAVE_QUERY_CAMINHONEIROS,
         (anterior) => {
           if (!anterior) return anterior;
-          return anterior.map((c) =>
-            c.id === atualizacao.caminhoneiro_id
-              ? {
-                  ...c,
-                  rastreando: true,
-                  ultima_latitude: atualizacao.latitude,
-                  ultima_longitude: atualizacao.longitude,
-                  ultima_velocidade: atualizacao.velocidade,
-                  ultima_atualizacao: atualizacao.atualizado_em,
-                }
-              : c
-          );
+          return anterior.map((c) => {
+            if (c.id !== atualizacao.caminhoneiro_id) return c;
+
+            if (!atualizacao.rastreando) {
+              return { ...c, rastreando: false };
+            }
+
+            return {
+              ...c,
+              rastreando: true,
+              ultima_latitude: atualizacao.latitude,
+              ultima_longitude: atualizacao.longitude,
+              ultima_velocidade: atualizacao.velocidade,
+              ultima_atualizacao: atualizacao.atualizado_em,
+            };
+          });
         }
       );
     },

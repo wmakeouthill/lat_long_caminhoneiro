@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.infrastructure.database.connection import obter_sessao
@@ -38,6 +39,7 @@ async def registrar_localizacao(
     await manager.broadcast_localizacao({
         "caminhoneiro_id": caminhoneiro.id,
         "nome": caminhoneiro.nome,
+        "rastreando": True,
         "latitude": dados.latitude,
         "longitude": dados.longitude,
         "velocidade": dados.velocidade,
@@ -45,3 +47,24 @@ async def registrar_localizacao(
     })
 
     return localizacao
+
+
+@router.delete("/rastreamento", status_code=status.HTTP_204_NO_CONTENT)
+async def parar_rastreamento(
+    request: Request,
+    caminhoneiro: Caminhoneiro = Depends(obter_caminhoneiro_autenticado),
+    sessao: AsyncSession = Depends(obter_sessao),
+    manager: RastreamentoConnectionManager = Depends(obter_connection_manager),
+) -> None:
+    repo = CaminhoneiroRepository(sessao)
+    await repo.atualizar_status_rastreamento(caminhoneiro.id, rastreando=False)
+
+    await manager.broadcast_localizacao({
+        "caminhoneiro_id": caminhoneiro.id,
+        "nome": caminhoneiro.nome,
+        "rastreando": False,
+        "latitude": None,
+        "longitude": None,
+        "velocidade": None,
+        "atualizado_em": datetime.now(timezone.utc).isoformat(),
+    })
