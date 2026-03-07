@@ -1,11 +1,11 @@
 export const estilos = {
-  cartao: (selecionado: boolean): React.CSSProperties => ({
+  cartao: (selecionado: boolean, cor: string): React.CSSProperties => ({
     padding: '12px 16px',
     marginBottom: 8,
     borderRadius: 8,
     cursor: 'pointer',
     backgroundColor: selecionado ? '#16213e' : '#0f3460',
-    borderLeft: `4px solid ${selecionado ? '#4ecca3' : 'transparent'}`,
+    borderLeft: `4px solid ${selecionado ? cor : 'transparent'}`,
     transition: 'all 0.2s',
   }),
   cabecalho: {
@@ -14,11 +14,11 @@ export const estilos = {
     gap: 8,
     marginBottom: 4,
   } as React.CSSProperties,
-  indicadorStatus: (rastreando: boolean): React.CSSProperties => ({
+  indicadorStatus: (rastreando: boolean, cor: string): React.CSSProperties => ({
     width: 8,
     height: 8,
     borderRadius: '50%',
-    backgroundColor: rastreando ? '#4ecca3' : '#555577',
+    backgroundColor: rastreando ? cor : '#555577',
     flexShrink: 0,
   }),
   nome: {
