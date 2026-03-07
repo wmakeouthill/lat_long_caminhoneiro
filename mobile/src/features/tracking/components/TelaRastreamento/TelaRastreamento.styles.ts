@@ -75,12 +75,24 @@ export const estilos = StyleSheet.create({
     fontSize: 13,
     marginBottom: 32,
   },
+  rodape: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   botaoLogout: {
     padding: 12,
   },
   botaoLogoutTexto: {
     color: '#555577',
     fontSize: 14,
+  },
+  botaoEngrenagem: {
+    padding: 8,
+  },
+  iconeEngrenagem: {
+    fontSize: 18,
+    opacity: 0.5,
   },
   cadastroNomeContainer: {
     width: '100%',

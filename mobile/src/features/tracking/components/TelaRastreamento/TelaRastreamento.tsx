@@ -17,6 +17,8 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
     erroNome,
     salvandoNome,
     salvarNome,
+    editandoNome,
+    setEditandoNome,
   } = useTelaRastreamento();
 
   async function handleLogout() {
@@ -29,12 +31,13 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
       <Text style={estilos.saudacao}>Olá,</Text>
       <Text style={estilos.nome}>{caminhoneiro?.nome?.split(' ')[0] ?? 'Motorista'}</Text>
 
-      <View style={estilos.cadastroNomeContainer}>
+      {editandoNome && (
+        <View style={estilos.cadastroNomeContainer}>
           <Text style={estilos.cadastroNomeTitulo}>Seu nome</Text>
-          <Text style={estilos.cadastroNomeDescricao}>Aparece no painel do gestor.</Text>
+          <Text style={estilos.cadastroNomeDescricao}>Pode ser seu apelido mais conhecido.</Text>
           <TextInput
             style={estilos.cadastroNomeInput}
-            placeholder="Seu nome"
+            placeholder="Seu nome ou apelido"
             placeholderTextColor="#555577"
             value={inputNome}
             onChangeText={(t) => { setInputNome(t); }}
@@ -54,7 +57,8 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
               <Text style={estilos.botaoSalvarNomeTexto}>Salvar Nome</Text>
             )}
           </TouchableOpacity>
-      </View>
+        </View>
+      )}
 
       <View style={[estilos.circuloStatus, rastreando ? estilos.circuloAtivo : estilos.circuloInativo]}>
         <Text style={estilos.iconeStatus}>{rastreando ? '📡' : '📍'}</Text>
@@ -83,9 +87,14 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
         </Text>
       )}
 
-      <TouchableOpacity style={estilos.botaoLogout} onPress={handleLogout}>
-        <Text style={estilos.botaoLogoutTexto}>Sair</Text>
-      </TouchableOpacity>
+      <View style={estilos.rodape}>
+        <TouchableOpacity style={estilos.botaoLogout} onPress={handleLogout}>
+          <Text style={estilos.botaoLogoutTexto}>Sair</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={estilos.botaoEngrenagem} onPress={() => setEditandoNome((v) => !v)}>
+          <Text style={estilos.iconeEngrenagem}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

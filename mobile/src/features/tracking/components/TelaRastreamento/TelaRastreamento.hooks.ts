@@ -16,6 +16,7 @@ export function useTelaRastreamento() {
   const [inputNome, setInputNome] = useState('');
   const [erroNome, setErroNome] = useState('');
   const [salvandoNome, setSalvandoNome] = useState(false);
+  const [editandoNome, setEditandoNome] = useState(false);
   const caminhoneiro = useAuthStore((s) => s.caminhoneiro);
   const accessToken = useAuthStore((s) => s.accessToken);
   const limparAutenticacao = useAuthStore((s) => s.limparAutenticacao);
@@ -66,6 +67,7 @@ export function useTelaRastreamento() {
     try {
       await apiClient.patch(`/caminhoneiros/${caminhoneiro.id}/nome`, { nome });
       atualizarNome(nome);
+      setEditandoNome(false);
     } catch {
       setErroNome('Erro ao salvar. Tente novamente.');
     } finally {
@@ -92,5 +94,7 @@ export function useTelaRastreamento() {
     erroNome,
     salvandoNome,
     salvarNome,
+    editandoNome,
+    setEditandoNome,
   };
 }
