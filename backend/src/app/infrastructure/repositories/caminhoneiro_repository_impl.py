@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.entities.caminhoneiro import Caminhoneiro
@@ -68,6 +68,6 @@ class CaminhoneiroRepository(ICaminhoneiroRepository):
         await self._sessao.execute(
             update(Caminhoneiro)
             .where(Caminhoneiro.id == caminhoneiro_id)
-            .values(rastreando=rastreando, atualizado_em=datetime.utcnow())
+            .values(rastreando=rastreando, atualizado_em=datetime.now(timezone.utc))
         )
         await self._sessao.commit()

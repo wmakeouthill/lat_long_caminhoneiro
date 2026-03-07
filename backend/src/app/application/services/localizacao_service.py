@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app.domain.entities.localizacao import Localizacao
 from app.domain.repositories.localizacao_repository import ILocalizacaoRepository
 from app.domain.repositories.caminhoneiro_repository import ICaminhoneiroRepository
@@ -36,7 +36,7 @@ class LocalizacaoService:
             precisao=dados.precisao,
             velocidade=dados.velocidade,
             registrado_em=dados.registrado_em,
-            recebido_em=datetime.utcnow(),
+            recebido_em=datetime.now(timezone.utc),
         )
 
         await self._caminhoneiro_repository.atualizar_status_rastreamento(

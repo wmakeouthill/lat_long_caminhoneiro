@@ -4,7 +4,7 @@ import type { CartaoCaminhoneiroProps } from './CartaoCaminhoneiro.types';
 
 export function CartaoCaminhoneiro({ caminhoneiro, selecionado, onClick }: CartaoCaminhoneiroProps) {
   const atualizadoEm = caminhoneiro.ultima_atualizacao
-    ? new Date(caminhoneiro.ultima_atualizacao).toLocaleTimeString('pt-BR')
+    ? new Date(caminhoneiro.ultima_atualizacao).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' })
     : null;
 
   return (

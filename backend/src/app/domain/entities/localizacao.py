@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.infrastructure.database.connection import Base
@@ -20,7 +20,7 @@ class Localizacao(Base):
     velocidade: Mapped[float | None] = mapped_column(Float, nullable=True)
     registrado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     recebido_em: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     caminhoneiro: Mapped["Caminhoneiro"] = relationship(  # noqa: F821

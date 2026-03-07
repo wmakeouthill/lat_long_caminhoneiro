@@ -22,7 +22,7 @@ export function TelaRastreamento({ onLogout }: TelaRastreamentoProps) {
   return (
     <View style={estilos.container}>
       <Text style={estilos.saudacao}>Olá,</Text>
-      <Text style={estilos.nome}>{caminhoneiro?.nome ?? 'Motorista'}</Text>
+      <Text style={estilos.nome}>{caminhoneiro?.nome?.split(' ')[0] ?? 'Motorista'}</Text>
 
       <View style={[estilos.circuloStatus, rastreando ? estilos.circuloAtivo : estilos.circuloInativo]}>
         <Text style={estilos.iconeStatus}>{rastreando ? '📡' : '📍'}</Text>
