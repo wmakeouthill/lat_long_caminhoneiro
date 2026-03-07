@@ -16,7 +16,7 @@ export async function iniciarRastreamento(): Promise<void> {
   if (jaAtivo) return;
 
   await Location.startLocationUpdatesAsync(LOCALIZACAO_TASK_NAME, {
-    accuracy: Location.Accuracy.Balanced,
+    accuracy: Location.Accuracy.Highest,
     timeInterval: INTERVALO_RASTREAMENTO_MS,
     distanceInterval: 0, // envia sempre no intervalo de tempo, independente de distância
     showsBackgroundLocationIndicator: true,

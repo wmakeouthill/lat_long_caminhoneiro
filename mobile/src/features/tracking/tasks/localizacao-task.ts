@@ -17,12 +17,16 @@ TaskManager.defineTask(
     }
 
     const locations = data?.locations;
+    console.log('[Rastreamento] Task disparou. Locations:', locations?.length ?? 0);
     if (!locations || locations.length === 0) return;
 
     const localizacao = locations[locations.length - 1];
+    console.log('[Rastreamento] Coords:', localizacao.coords.latitude, localizacao.coords.longitude);
+
     // Lê o token diretamente do SecureStore — o Zustand store não é persistido
     // entre processos, então useAuthStore.getState() retornaria null na background task.
     const token = await SecureStore.getItemAsync(CHAVE_TOKEN);
+    console.log('[Rastreamento] Token presente:', !!token);
 
     if (!token) {
       console.warn('[Rastreamento] Sem token de autenticação. Pulando envio.');
@@ -42,6 +46,7 @@ TaskManager.defineTask(
         },
         token
       );
+      console.log('[Rastreamento] Localização enviada com sucesso.');
     } catch (envioErro) {
       console.error('[Rastreamento] Falha ao enviar localização:', envioErro);
     }
