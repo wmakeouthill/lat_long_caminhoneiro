@@ -10,8 +10,13 @@
 $ErrorActionPreference = "Stop"
 
 # ── Configuração ─────────────────────────────────────────────────────────────
-$SSH_KEY    = "CHAVE_SSH_LOCAL"
-$SSH_HOST   = "ubuntu@SEU_IP_VPS"
+$SSH_KEY  = if ($env:DEPLOY_SSH_KEY)  { $env:DEPLOY_SSH_KEY }  else { "CAMINHO/PARA/SUA/CHAVE_SSH.key" }
+$SSH_HOST = if ($env:DEPLOY_SSH_HOST) { $env:DEPLOY_SSH_HOST } else { "ubuntu@SEU_IP_VPS" }
+if ($SSH_KEY -eq "CAMINHO/PARA/SUA/CHAVE_SSH.key" -or $SSH_HOST -eq "ubuntu@SEU_IP_VPS") {
+    Write-Host "ERRO: Configure DEPLOY_SSH_KEY e DEPLOY_SSH_HOST." -ForegroundColor Red
+    Write-Host "  Copie deploy.env.example para deploy.env e ajuste os valores." -ForegroundColor Yellow
+    exit 1
+}
 $IMAGE_NAME = "lat-long-backend"
 $IMAGE_TAG  = "latest"
 $REMOTE_DIR = "/opt/lat-long-caminhoneiro"
@@ -105,4 +110,4 @@ Assert-Ok "deploy remoto"
 
 Write-Host ""
 Write-Host "Deploy finalizado com sucesso!" -ForegroundColor Green
-Write-Host "Acesse: http://SEU_IP_VPS" -ForegroundColor Cyan
+Write-Host "Acesse: http://$($SSH_HOST.Split('@')[1])" -ForegroundColor Cyan

@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 export const API_URL: string =
   Constants.expoConfig?.extra?.apiUrl ??
   (Constants.manifest as any)?.extra?.apiUrl ??
-  'http://SEU_IP_VPS';
+  'http://localhost:8000';
 
 console.log('[Config] API_URL:', API_URL);
 

@@ -6,8 +6,14 @@
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-$SSH_KEY = "CHAVE_SSH_LOCAL"
-$SSH_HOST = "ubuntu@SEU_IP_VPS"
+# Lê das variáveis de ambiente; caso não definidas, use o arquivo deploy.env ou edite aqui
+$SSH_KEY  = if ($env:DEPLOY_SSH_KEY)  { $env:DEPLOY_SSH_KEY }  else { "CAMINHO/PARA/SUA/CHAVE_SSH.key" }
+$SSH_HOST = if ($env:DEPLOY_SSH_HOST) { $env:DEPLOY_SSH_HOST } else { "ubuntu@SEU_IP_VPS" }
+if ($SSH_KEY -eq "CAMINHO/PARA/SUA/CHAVE_SSH.key" -or $SSH_HOST -eq "ubuntu@SEU_IP_VPS") {
+    Write-Host "ERRO: Configure DEPLOY_SSH_KEY e DEPLOY_SSH_HOST (env vars ou edite o script)." -ForegroundColor Red
+    Write-Host "  Exemplo: copie deploy.env.example para deploy.env e ajuste os valores." -ForegroundColor Yellow
+    exit 1
+}
 $IMAGE_NAME = "lat-long-backend"
 $IMAGE_TAG = "latest"
 $REMOTE_DIR = "/opt/lat-long-caminhoneiro"
@@ -46,7 +52,7 @@ function Elapsed($start) {
 }
 
 Write-Host ""
-Write-Host "  LAT-LONG DEPLOY  |  VPS: SEU_IP_VPS" -ForegroundColor Yellow
+Write-Host "  LAT-LONG DEPLOY  |  VPS: $SSH_HOST" -ForegroundColor Yellow
 Write-Host "  Iniciando em: $(Get-Date -Format 'HH:mm:ss')" -ForegroundColor DarkGray
 
 # =============================================================================
@@ -196,7 +202,8 @@ $total = [math]::Round(((Get-Date) - $totalStart).TotalSeconds, 0)
 Write-Host ""
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "  DEPLOY FINALIZADO em ${total}s" -ForegroundColor Green
-Write-Host "  Backend: http://SEU_IP_VPS/health" -ForegroundColor Green
-Write-Host "  Dashboard: http://SEU_IP_VPS/" -ForegroundColor Green
+$vpsDisplay = $SSH_HOST.Split('@')[1]
+Write-Host "  Backend: http://$vpsDisplay/health" -ForegroundColor Green
+Write-Host "  Dashboard: http://$vpsDisplay/" -ForegroundColor Green
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host ""

@@ -12,8 +12,17 @@
 set -euo pipefail
 
 # ── Configuração ─────────────────────────────────────────────────────────────
-SSH_KEY="CHAVE_SSH_LOCAL"   # Git Bash (Windows)
-SSH_HOST="ubuntu@SEU_IP_VPS"
+SSH_KEY="${DEPLOY_SSH_KEY:-}"
+SSH_HOST="${DEPLOY_SSH_HOST:-}"
+
+if [ -z "$SSH_KEY" ] || [ -z "$SSH_HOST" ]; then
+  echo "Erro: defina as variáveis de ambiente DEPLOY_SSH_KEY e DEPLOY_SSH_HOST."
+  echo "  Exemplo:"
+  echo "    export DEPLOY_SSH_KEY=/caminho/para/chave.key"
+  echo "    export DEPLOY_SSH_HOST=ubuntu@SEU_IP_VPS"
+  echo "  Ou copie deploy.env.example para deploy.env e execute: set -a; source deploy.env; set +a"
+  exit 1
+fi
 IMAGE_NAME="lat-long-backend"
 IMAGE_TAG="latest"
 REMOTE_DIR="/opt/lat-long-caminhoneiro"
