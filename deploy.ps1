@@ -6,6 +6,18 @@
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
+# Carrega deploy.env se existir (valores do arquivo são sobrescritos por env vars da sessão)
+if (Test-Path "$PSScriptRoot\deploy.env") {
+    Get-Content "$PSScriptRoot\deploy.env" | Where-Object { $_ -match "^\s*[^#\s]" } | ForEach-Object {
+        $parts = $_ -split "=", 2
+        $key   = $parts[0].Trim()
+        $value = $parts[1].Trim()
+        if (-not [System.Environment]::GetEnvironmentVariable($key, "Process")) {
+            [System.Environment]::SetEnvironmentVariable($key, $value, "Process")
+        }
+    }
+}
+
 # Lê das variáveis de ambiente; caso não definidas, use o arquivo deploy.env ou edite aqui
 $SSH_KEY  = if ($env:DEPLOY_SSH_KEY)  { $env:DEPLOY_SSH_KEY }  else { "CAMINHO/PARA/SUA/CHAVE_SSH.key" }
 $SSH_HOST = if ($env:DEPLOY_SSH_HOST) { $env:DEPLOY_SSH_HOST } else { "ubuntu@SEU_IP_VPS" }
